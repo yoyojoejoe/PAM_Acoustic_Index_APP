@@ -14,5 +14,6 @@
  
  ver 0.0.1: Complete the Single Wav Spectrogram.
 
- Function and usage with different tools: \n
+ Function and usage with different tools:
+ 
  1.Single Wav spectrogram:Read .wav file and plot the spectrum and spectrogram.
