@@ -3,9 +3,7 @@
  The compile App version is at " ".
  This tool is written by Yung-Hung Liao.
  Email:yoyojoejoe123456789@gmail.com.
-
  A underwater acoustic signal processing and simulation App written with C++.
-
  Library or tool used in this project:
  1.Eigen
  2.MKL
