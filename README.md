@@ -11,5 +11,8 @@
  2.MKL
  3.QT
  4.qcustomplot
+ 
+ ver 0.0.1: Complete the Single Wav Spectrogram.
 
-ver 0.0.1: Read .wav file and plot the spectrum and spectrogram.
+ Function and usage with different tools.
+ 1.Single Wav spectrogram:Read .wav file and plot the spectrum and spectrogram.
