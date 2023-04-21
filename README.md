@@ -12,4 +12,4 @@
  3.QT
  4.qcustomplot
 
-ver 0.0.1 Signal Processing for spectrogram with an single wav file.
+ver 0.0.1: Signal Processing for spectrogram with an single wav file.
