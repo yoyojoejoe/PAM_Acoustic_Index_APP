@@ -1,6 +1,6 @@
 #include "LTSM.h"
-#include"Spectral_analyze.h"
-#include"Data_split.h"
+#include"../tool/Spectral_analyze.h"
+#include"../tool/Data_split.h"
 
 LTSM::LTSM(QWidget* parent)
 {

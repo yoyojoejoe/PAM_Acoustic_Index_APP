@@ -1,5 +1,5 @@
 #include "single_wav_spectrogram.h"
-#include"Spectral_analyze.h"
+#include"../tool/Spectral_analyze.h"
 
 single_wav_spectrogram::single_wav_spectrogram(QWidget* parent)
 {

@@ -1,6 +1,5 @@
 #pragma once
-
-#include"qcustomplot.h"
+#include"../tool/qcustomplot.h"
 #include <QtWidgets/QMainWindow>
 #include<QtWidgets/QWidget>
 #include <QtWidgets/QPushButton>
