@@ -37,7 +37,7 @@ single_wav_spectrogram::single_wav_spectrogram(QWidget* parent)
     //connect to the function
     connect(audio_file_read_button, &QPushButton::clicked, this, &single_wav_spectrogram::read_file_path);
     connect(save_file_read_button, &QPushButton::clicked, this, &single_wav_spectrogram::save_file_path);
-    connect(spectrogram_button, &QPushButton::clicked, this, &single_wav_spectrogram::spectral_gnu_plot);
+    connect(spectrogram_button, &QPushButton::clicked, this, &single_wav_spectrogram::spectrogram_plot);
     connect(spectrum_button, &QPushButton::clicked, this, &single_wav_spectrogram::spectrum_plot);
     connect(raw_data_button, &QPushButton::clicked, this, &single_wav_spectrogram::wave_plot);
     //Line Edit Audio file path
@@ -87,7 +87,7 @@ void single_wav_spectrogram::save_file_path() {
     dir = QFileDialog::getExistingDirectory();
     save_file->setText(dir);
 }
-void single_wav_spectrogram::spectral_gnu_plot() {
+void single_wav_spectrogram::spectrogram_plot() {
 
     spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));;
     fig->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;

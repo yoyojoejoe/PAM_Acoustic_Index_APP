@@ -1,5 +1,4 @@
 #include "LTSM.h"
-#include"../tool/Spectral_analyze.h"
 #include"../tool/Data_split.h"
 
 LTSM::LTSM(QWidget* parent)
@@ -10,7 +9,8 @@ LTSM::LTSM(QWidget* parent)
     font->setFamily("Verdana");
     font->setPointSize(15);
     
-
+    spectrogram = new QCustomPlot(this);
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
     //Button
     //button audio read path
     audio_file_read_button = new QPushButton("...", this);
@@ -41,7 +41,7 @@ LTSM::LTSM(QWidget* parent)
     audio_file->setGeometry(QRect(QPoint(150, 20), QSize(400, 50)));
     audio_file->setFont(*font);
 
-    wav_processing->setGeometry(QRect(QPoint(150, 320), QSize(400, 50)));
+    wav_processing->setGeometry(QRect(QPoint(170, 190), QSize(700, 50)));
     wav_processing->setFont(*font);
 
     save_file->setGeometry(QRect(QPoint(150, 120), QSize(400, 50)));
@@ -83,33 +83,79 @@ void LTSM::save_file_path() {
 }
 void LTSM::spectral_gnu_plot() {
 
+    std::vector<double> temp_spectrum;
     std::string temp;
     load_path = audio_file->text().toUtf8().constData();
     save_path = save_file->text().toUtf8().constData();
     load_wav_file();
     wav_processing->setText(QString::fromStdString(load_path_list[0]));
     QCoreApplication::processEvents();
-    Spectral_analyze spec = Spectral_analyze(176.3);
+    Spectral_analyze* spec2 = new Spectral_analyze(176.3);
+    spec2->Audio_read(load_path_list[0]);
     //spec.Audio_read(load_path_list[0]);
-    int win = std::stod(window->text().toUtf8().constData()) * (1.0 * spec.fs);
-    int overlap = std::stod(noverlap->text().toUtf8().constData()) * (1.0 * spec.fs);
+    //int win = std::stod(window->text().toUtf8().constData()) * (1.0 * spec2->fs);
+    //int overlap = std::stod(noverlap->text().toUtf8().constData()) * (1.0 * spec2->fs);
+    win = 1.0 * spec2->fs;
+    overlap = 0;
+    delete(spec2);
     //spec.STFT(win, overlap);
     //spec.LTSM_Time();
     for (int i = 0; i < load_path_list.size(); i++) {
+        temp_spectrum.clear();
+        Spectral_analyze* spec = new Spectral_analyze(176.3);
         wav_processing->setText(QString::fromStdString(load_path_list[i]));
-        
         QCoreApplication::processEvents();
-        spec.Audio_read(load_path_list[i]);
+        spec->Audio_read(load_path_list[i]);
         //spec.Audio_read(load_path_list[i]);
-        //spec.STFT(win, overlap);
+        spec->STFT(win, overlap);
         //spec.LTSM_Time();
+        for (int j = 0; j < win/2+1; j++) {
+            temp_spectrum.push_back(spec->Spectrum[j]);
+        }
+        Long_Spectrogram.push_back(temp_spectrum);
+        draw_spectrogram(spec);
+        delete(spec);
     }
     //
     //spec.STFT(win, overlap);
     //spec.LTSM_Time(save_path);
-
+    
 }
-
+void LTSM::draw_spectrogram(Spectral_analyze* spec) {
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));;
+    spectrogram->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
+    spectrogram->axisRect()->setupFullAxesBox(true);
+    spectrogram->xAxis->setLabel("Time (s)");
+    spectrogram->yAxis->setLabel("Frequency (Hz)");
+    pcolor = new QCPColorMap(spectrogram->xAxis, spectrogram->yAxis);
+    int nx = Long_Spectrogram.size();
+    int ny = Long_Spectrogram[0].size();
+    pcolor->data()->setSize(nx, ny);
+    pcolor->data()->setRange(QCPRange(spec->time(0), spec->time(nx - 1)), QCPRange(spec->frequency(0), spec->frequency(ny - 1))); // and span the coordinate range -4..4 in both key (x) and value (y) dimensions
+    //pcolor->data()->setRange(QCPRange(spec->time.minCoeff(), spec->time.maxCoeff()), QCPRange(spec->frequency.minCoeff(), spec->frequency.minCoeff()));
+    // now we assign some data, by accessing the QCPColorMapData instance of the color map:
+    for (int i = 0; i < nx; i++)
+    {
+        for (int j = 0; j < ny; j++)
+        {
+            pcolor->data()->setCell(i, j, Long_Spectrogram[i][j]);
+        }
+    }
+    QCPColorScale* colorScale = new QCPColorScale(spectrogram);
+    spectrogram->plotLayout()->addElement(0, 1, colorScale);
+    colorScale->setType(QCPAxis::atRight);
+    colorScale->setDataRange(QCPRange(0, 150));
+    pcolor->setColorScale(colorScale);
+    colorScale->axis()->setLabel("SPL");
+    pcolor->setGradient(QCPColorGradient::gpJet);
+    pcolor->rescaleDataRange();
+    QCPMarginGroup* marginGroup = new QCPMarginGroup(spectrogram);
+    spectrogram->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, marginGroup);
+    colorScale->setMarginGroup(QCP::msBottom | QCP::msTop, marginGroup);
+    spectrogram->rescaleAxes();
+    spectrogram->replot();
+    spectrogram->show();
+}
 void LTSM::load_wav_file() {
     struct _finddata_t fileinfo;
     std::string curr = load_path + "/*.wav";

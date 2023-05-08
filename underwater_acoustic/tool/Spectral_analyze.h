@@ -5,13 +5,14 @@
 #include<Eigen/Eigen/Dense>
 #include <Eigen/unsupported/Eigen/FFT>
 using namespace Eigen;
-
-#include <iostream>
-#include <math.h>
-#define PI acos(-1)
 #include <string>
 #include <fstream>
 #include<D:/library/AudioFile/AudioFile.h>
+#include <iostream>
+#include <math.h>
+
+#define PI acos(-1)
+
 
 //Used to analyze the audio spectral;
 class Spectral_analyze {

@@ -1,5 +1,5 @@
 #pragma once
-#include"../tool/qcustomplot.h"
+
 #include <QtWidgets/QMainWindow>
 #include<QtWidgets/QWidget>
 #include <QtWidgets/QPushButton>
@@ -9,6 +9,8 @@
 #include<QtWidgets/QLabel>
 #include<QtGui/QImage>
 #include<QtGui/QPixmap>
+#include"../tool/qcustomplot.h"
+
 
 //#include<QtCharts/qcustomplot.cpp>
 
@@ -25,7 +27,7 @@ public:
     single_wav_spectrogram(QWidget* parent = nullptr);
     void read_file_path();
     void save_file_path();
-    void spectral_gnu_plot();
+    void spectrogram_plot();
     void spectrum_plot();
     void wave_plot();
     ~single_wav_spectrogram();
@@ -52,6 +54,7 @@ public:
     QCustomPlot* fig;
     QCustomPlot* spectrogram;//spectrogram
     QCPColorMap* pcolor;
+
 
 
 };
