@@ -3,6 +3,8 @@
 
 LTSM::LTSM(QWidget* parent)
 {
+    win = 1.0;
+    noverlap = 0.0;
 
     font = new QFont();
 
@@ -13,27 +15,31 @@ LTSM::LTSM(QWidget* parent)
     spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
     //Button
     //button audio read path
-    audio_file_read_button = new QPushButton("...", this);
-    save_file_read_button = new QPushButton("...", this);
-    analyze_button = new QPushButton("Analyze", this);
-    
     //set size and location of the button
+    audio_file_read_button = new QPushButton("...", this);
     audio_file_read_button->setGeometry(QRect(QPoint(550, 20), QSize(50, 50)));
+    save_file_read_button = new QPushButton("...", this);
     save_file_read_button->setGeometry(QRect(QPoint(550, 120), QSize(50, 50)));
+    analyze_button = new QPushButton("Analyze", this);
     analyze_button->setGeometry(QRect(QPoint(20, 190), QSize(150, 50)));
+    Setting_Button = new QPushButton("Setting Panel", this);
+    Setting_Button->setGeometry(QRect(QPoint(600, 20), QSize(200, 50)));
 
+    
+    
     analyze_button->setFont(*font);
     audio_file_read_button->setFont(*font);
     save_file_read_button->setFont(*font);
+    Setting_Button->setFont(*font);
     //connect to the function
     connect(audio_file_read_button, &QPushButton::clicked, this, &LTSM::read_file_path);
     connect(save_file_read_button, &QPushButton::clicked, this, &LTSM::save_file_path);
-    connect(analyze_button, &QPushButton::clicked, this, &LTSM::spectral_gnu_plot);
+    connect(analyze_button, &QPushButton::clicked, this, &LTSM::Analyze);
+    connect(Setting_Button, &QPushButton::clicked, this, &LTSM::open_setting_pannel);
     //Line Edit Audio file path
     audio_file = new QLineEdit(this);
     save_file = new QLineEdit(this);
-    window = new QLineEdit(this);
-    noverlap = new QLineEdit(this);
+
 
     wav_processing = new QLineEdit(this);
 
@@ -46,14 +52,11 @@ LTSM::LTSM(QWidget* parent)
 
     save_file->setGeometry(QRect(QPoint(150, 120), QSize(400, 50)));
     save_file->setFont(*font);
-    window->setGeometry(QRect(QPoint(750, 20), QSize(100, 50)));
-    window->setFont(*font);
-    noverlap->setGeometry(QRect(QPoint(750, 120), QSize(100, 50)));
-    noverlap->setFont(*font);
+
+
     audio_file->setText("D:/test");
-    save_file->setText("D:/spectrogram.txt");
-    window->setText("1");
-    noverlap->setText("0");
+    save_file->setText("D:/test");
+
     //Label
 
     //Audio File Label
@@ -63,12 +66,7 @@ LTSM::LTSM(QWidget* parent)
     Spec_file_label = new QLabel("Result Path : ", this);
     Spec_file_label->setGeometry(QRect(QPoint(20, 120), QSize(150, 50)));
     Spec_file_label->setFont(*font);
-    window_label = new QLabel("Window (s): ", this);
-    window_label->setGeometry(QRect(QPoint(620, 20), QSize(150, 50)));
-    window_label->setFont(*font);
-    overlap_label = new QLabel("Overlap (s): ", this);
-    overlap_label->setGeometry(QRect(QPoint(620, 120), QSize(150, 50)));
-    overlap_label->setFont(*font);
+
 
 }
 void LTSM::read_file_path() {
@@ -81,7 +79,7 @@ void LTSM::save_file_path() {
     dir = QFileDialog::getExistingDirectory();
     save_file->setText(dir);
 }
-void LTSM::spectral_gnu_plot() {
+void LTSM::Analyze() {
 
     std::vector<double> temp_spectrum;
     std::string temp;
@@ -95,8 +93,8 @@ void LTSM::spectral_gnu_plot() {
     //spec.Audio_read(load_path_list[0]);
     //int win = std::stod(window->text().toUtf8().constData()) * (1.0 * spec2->fs);
     //int overlap = std::stod(noverlap->text().toUtf8().constData()) * (1.0 * spec2->fs);
-    win = 1.0 * spec2->fs;
-    overlap = 0;
+    int temp_win = win * spec2->fs;
+    int temp_noverlap = noverlap * spec2->fs;
     delete(spec2);
     //spec.STFT(win, overlap);
     //spec.LTSM_Time();
@@ -107,9 +105,9 @@ void LTSM::spectral_gnu_plot() {
         QCoreApplication::processEvents();
         spec->Audio_read(load_path_list[i]);
         //spec.Audio_read(load_path_list[i]);
-        spec->STFT(win, overlap);
+        spec->STFT(temp_win, temp_noverlap);
         //spec.LTSM_Time();
-        for (int j = 0; j < win/2+1; j++) {
+        for (int j = 0; j < temp_win /2+1; j++) {
             temp_spectrum.push_back(spec->Spectrum[j]);
         }
         Long_Spectrogram.push_back(temp_spectrum);
@@ -156,6 +154,11 @@ void LTSM::draw_spectrogram(Spectral_analyze* spec) {
     spectrogram->replot();
     spectrogram->show();
 }
+
+void LTSM::save_as_csv() {
+
+}
+
 void LTSM::load_wav_file() {
     struct _finddata_t fileinfo;
     std::string curr = load_path + "/*.wav";
@@ -178,7 +181,13 @@ void LTSM::load_wav_file() {
         _findclose(handle);
     }
 }
-
+void LTSM::open_setting_pannel() {
+    
+    Setting_Panel_Class = new Setting_Panel(&win,&noverlap);
+    Setting_Panel_Class->setFixedSize(500, 500);
+    Setting_Panel_Class->show();
+    
+}
 
 LTSM::~LTSM()
 {}

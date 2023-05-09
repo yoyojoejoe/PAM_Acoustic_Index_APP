@@ -15,6 +15,7 @@
 #include <fstream> 
 #include<stdio.h>
 #include<vector>
+#include"Setting_Panel.h"
 #include"../tool/qcustomplot.h"
 #include"../tool/Spectral_analyze.h"
 
@@ -24,22 +25,22 @@ public:
     LTSM(QWidget* parent = nullptr);
     void read_file_path();
     void save_file_path();
-    void spectral_gnu_plot();
+    void Analyze();
+    void open_setting_pannel();
+    void save_as_csv();
     ~LTSM();
     QPushButton* audio_file_read_button;//read the audio file
     QPushButton* save_file_read_button;//read the save_file path
     QPushButton* analyze_button;//start to analysze
+    QPushButton* Setting_Button;//Setting Pannel
 
     QLineEdit* audio_file;//Audio file path 
     QLineEdit* save_file;//Audio file path 
-    QLineEdit* window;//New
-    QLineEdit* noverlap;//Audio file path 
     QLineEdit* wav_processing;//which wav file is processing
 
     QLabel* Audio_file_label;
     QLabel* Spec_file_label;
-    QLabel* window_label;
-    QLabel* overlap_label;
+
 
     QFont* font;
     QString dir;
@@ -54,8 +55,9 @@ public:
     QCustomPlot* spectrogram;//spectrogram
     QCPColorMap* pcolor;
 
+    Setting_Panel* Setting_Panel_Class;
     //setting variable
-    int win;
-    int overlap;
+    double win;
+    double noverlap;
 
 };

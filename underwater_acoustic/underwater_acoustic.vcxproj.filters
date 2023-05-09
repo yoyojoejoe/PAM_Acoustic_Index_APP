@@ -55,6 +55,9 @@
     <ClCompile Include="tool\qcustomplot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LTSM\Setting_Panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LTSM\LTSM.h">
@@ -67,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tool\Spectral_analyze.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LTSM\Setting_Panel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

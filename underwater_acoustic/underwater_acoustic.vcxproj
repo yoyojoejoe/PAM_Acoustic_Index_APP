@@ -97,6 +97,7 @@
     <QtUic Include="underwater_acoustic.ui" />
     <QtMoc Include="underwater_acoustic.h" />
     <ClCompile Include="LTSM\LTSM.cpp" />
+    <ClCompile Include="LTSM\Setting_Panel.cpp" />
     <ClCompile Include="Single_wav_spectrogram\single_wav_spectrogram.cpp" />
     <ClCompile Include="tool\Data_split.cpp" />
     <ClCompile Include="tool\qcustomplot.cpp" />
@@ -106,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LTSM\LTSM.h" />
+    <ClInclude Include="LTSM\Setting_Panel.h" />
     <ClInclude Include="Single_wav_spectrogram\single_wav_spectrogram.h" />
     <ClInclude Include="tool\Data_split.h" />
     <QtMoc Include="tool\qcustomplot.h" />
