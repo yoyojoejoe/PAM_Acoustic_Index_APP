@@ -15,6 +15,7 @@
 #include <fstream> 
 #include<stdio.h>
 #include<vector>
+
 #include"Setting_Panel.h"
 #include"../tool/qcustomplot.h"
 #include"../tool/Spectral_analyze.h"
@@ -27,7 +28,7 @@ public:
     void save_file_path();
     void Analyze();
     void open_setting_pannel();
-    void save_as_csv();
+    void save_as_csv(std::vector<double> spectrum, std::string file_path);
     ~LTSM();
     QPushButton* audio_file_read_button;//read the audio file
     QPushButton* save_file_read_button;//read the save_file path
@@ -55,9 +56,13 @@ public:
     QCustomPlot* spectrogram;//spectrogram
     QCPColorMap* pcolor;
 
-    Setting_Panel* Setting_Panel_Class;
+    Setting_Panel* Acoustic_Setting_Panel_Class;
     //setting variable
     double win;
     double noverlap;
+    double sensitivity;
 
+    bool check_total_spectrogram;
+    bool check_octave_band;
+    std::vector<double> Oc_Center_frequency;
 };
