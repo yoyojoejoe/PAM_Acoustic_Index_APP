@@ -59,3 +59,9 @@ void Spectral_analyze::Octave_Band(std::vector<double>center_frequency,int windo
     }
     
 }
+
+void Spectral_analyze::ACI_Calculate() {
+    for (int i = 0; i < spectrogram.cols(); i++) {
+
+    }
+}

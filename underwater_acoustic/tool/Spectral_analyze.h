@@ -21,18 +21,19 @@ public:
     void STFT(int window, int noverlap);
     void Audio_read(std::string file_name);//read the audio file
     void Octave_Band(std::vector<double>center_frequency,int window);
-
+    void ACI_Calculate();
     int fs;
     VectorXd data;//Audiofile_data
     MatrixXd spectrogram;//Spectrogram (linear scale psd)
     VectorXd time;//Time of spectrogram (seconds);
     VectorXd frequency;//frequency of spectrogram (Hz)
     VectorXd frequency_spectrum;//frequency of spectrogram (Hz)
-    MatrixXd SPL_LTSM;//Long Time Spectrogram (Real Sound Pressure Level);
-    MatrixXd Long_Time;//Time array
     std::ofstream ofs;
     VectorXd time_wav;//original_wav time;
     VectorXd Spectrum;
+
+    MatrixXd ACI_map;
+
     
     std::vector<double> Octave_3_1;
     Spectral_analyze(double sens);//clas initialize
