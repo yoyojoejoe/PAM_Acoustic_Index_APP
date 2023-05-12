@@ -24,14 +24,15 @@ public:
     void ACI_Calculate();
     int fs;
     VectorXd data;//Audiofile_data
-    MatrixXd spectrogram;//Spectrogram (linear scale psd)
     VectorXd time;//Time of spectrogram (seconds);
     VectorXd frequency;//frequency of spectrogram (Hz)
     VectorXd frequency_spectrum;//frequency of spectrogram (Hz)
     std::ofstream ofs;
     VectorXd time_wav;//original_wav time;
-    VectorXd Spectrum;
-
+    VectorXd Spectrum;//spectrum (dB scale psd)
+    VectorXd Spectrum_linear;//Spectrum (linear scale psd)
+    MatrixXd spectrogram;//Spectrogram (dB scale psd)
+    MatrixXd spectrogram_linear;//Spectrogram (linear scale psd)
     MatrixXd ACI_map;
 
     

@@ -35,6 +35,7 @@ void Spectral_analyze::STFT(int window, int noverlap) {
     frequency = VectorXd::LinSpaced(window, 0, fs);
     spectrogram = spectrogram * (1.0 / (1.0 * fs * window));
     VectorXd temp2 = spectrogram.rowwise().mean();
+    spectrogram_linear = spectrogram;
     temp2.array() = 10 * temp2.array().log10() + sensitivity;
     Spectrum = temp2.block(0, 0, spectrogram.rows() / 2 + 1, 1);
     frequency_spectrum = VectorXd::LinSpaced(window / 2 + 1, 0, fs / 2);
@@ -54,14 +55,16 @@ void Spectral_analyze::Octave_Band(std::vector<double>center_frequency,int windo
         if (high_index >= Spectrum.size()) {
             high_index = Spectrum.size() - 1;
         }
-        VectorXd temp = Spectrum.segment(low_index, high_index);
-        Octave_3_1.push_back(temp.mean());
+        VectorXd temp = Spectrum_linear.segment(low_index, high_index);
+        double temp_2 = temp.mean();
+        Octave_3_1.push_back(10*log10(temp_2)+sensitivity);
     }
     
 }
 
 void Spectral_analyze::ACI_Calculate() {
-    for (int i = 0; i < spectrogram.cols(); i++) {
-
+    ACI_map = MatrixXd::Zero(spectrogram_linear.rows(), spectrogram_linear.cols() - 1);
+    for (int i = 1; i < spectrogram_linear.cols(); i++) {
+        ACI_map.col(i) = spectrogram_linear.col(i) - spectrogram_linear.col(i - 1);
     }
 }
