@@ -8,6 +8,8 @@
 #include<QtGui/QFont>
 #include<QCoreApplication>
 #include<QtWidgets/QLabel>
+#include<QtWidgets/QCheckBox>
+
 #include<io.h>
 #include<string>
 #include<vector>
@@ -16,13 +18,15 @@
 #include<stdio.h>
 #include<vector>
 #include<iomanip>
-
+#include"../tool/Spectral_analyze.h"
+#include"Acoustic_Input.h"
 class Setting_Panel : public QWidget {
 public:
 
     void Change_value();
     std::vector<double> transfer_string_doble(std::string a);
-    Setting_Panel(double *win,double *noverlap,double *sensitivity, std::vector<double> &oc_center_freq,QWidget* parent = nullptr);
+    //Setting_Panel(double *win,double *noverlap,double *sensitivity, std::vector<double> &oc_center_freq,QWidget* parent = nullptr);
+    Setting_Panel(Acousic_Input *input, QWidget* parent = nullptr);
     ~Setting_Panel();
     QLineEdit* window_LineEdit;//window
     QLineEdit* noverlap_LineEdit;//noverlap
@@ -34,10 +38,12 @@ public:
     QLabel* Oc_Label;
     QFont* font;
 
+    QCheckBox* OC_band_check;
+    QLabel* OC_check_Label;
+    QCheckBox* ACI_check;
+    QLabel* ACI_check_Label;
+
     QPushButton* confirm_button;
     
-    double *temp_win;
-    double *temp_noverlap;
-    double *temp_sensitivity;
-    std::vector<double> *temp_oc_center_freq;
+    Acousic_Input* temp_input;
 };

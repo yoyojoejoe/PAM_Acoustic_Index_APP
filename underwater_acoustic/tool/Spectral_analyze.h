@@ -1,3 +1,4 @@
+#pragma once
 #define EIGEN_USE_MKL_ALL //Eigen MKL use
 #define EIGEN_VECTORIZE_SSE4_2 //Eigen MKL library use
 #define _CRT_SECURE_NO_WARNINGS //fopen remove warning
@@ -22,6 +23,7 @@ public:
     void Audio_read(std::string file_name);//read the audio file
     void Octave_Band(std::vector<double>center_frequency,int window);
     void ACI_Calculate();
+    void save_as_csv(VectorXd spectrum, std::string file_path);
     int fs;
     VectorXd data;//Audiofile_data
     VectorXd time;//Time of spectrogram (seconds);
@@ -34,9 +36,10 @@ public:
     MatrixXd spectrogram;//Spectrogram (dB scale psd)
     MatrixXd spectrogram_linear;//Spectrogram (linear scale psd)
     MatrixXd ACI_map;
-
+    VectorXd ACI_spectrum;
     
-    std::vector<double> Octave_3_1;
+    VectorXd Octave_3_1;
+    //std::vector<double> Octave_3_1;
     Spectral_analyze(double sens);//clas initialize
     VectorXd hamming(int N);
 

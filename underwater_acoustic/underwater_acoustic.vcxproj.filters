@@ -75,6 +75,9 @@
     <ClInclude Include="LTSM\Setting_Panel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LTSM\Acoustic_Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="tool\qcustomplot.h">

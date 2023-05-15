@@ -1,15 +1,11 @@
 ﻿#pragma once
 #include "Setting_Panel.h"
 
-Setting_Panel::Setting_Panel(double *win, double *noverlap, double* sensitivity, std::vector<double>&oc_center_freq, QWidget* parent) {
+Setting_Panel::Setting_Panel(Acousic_Input *input, QWidget* parent) {
 	font = new QFont();
 	font->setFamily("Verdana");
 	font->setPointSize(15); 
-
-	temp_win = win;
-	temp_noverlap = noverlap;
-	temp_sensitivity = sensitivity;
-	temp_oc_center_freq = &oc_center_freq;
+	temp_input = input;
 
 	window_Label = new QLabel("Window (s) : ", this);
 	window_Label->setGeometry(QRect(QPoint(20, 120), QSize(150, 50)));
@@ -29,31 +25,46 @@ Setting_Panel::Setting_Panel(double *win, double *noverlap, double* sensitivity,
 	window_LineEdit = new QLineEdit(this);
 	window_LineEdit->setGeometry(QRect(QPoint(200, 120), QSize(150, 50)));
 	window_LineEdit->setFont(*font);
-	temp_str = std::to_string(*win);
+	temp_str = std::to_string(temp_input->win);
 	window_LineEdit->setText(QString::fromStdString( temp_str.substr(0,temp_str.find(".")+3 )));
 	noverlap_LineEdit = new QLineEdit(this);
 	noverlap_LineEdit->setGeometry(QRect(QPoint(200, 220), QSize(150, 50)));
 	noverlap_LineEdit->setFont(*font);
-	temp_str = std::to_string(*noverlap);
+	temp_str = std::to_string(temp_input->noverlap);
 	noverlap_LineEdit->setText(QString::fromStdString(temp_str.substr(0, temp_str.find(".") +3)));
 	sensitivity_LineEdit = new QLineEdit(this);
 	sensitivity_LineEdit->setGeometry(QRect(QPoint(200, 320), QSize(150, 50)));
 	sensitivity_LineEdit->setFont(*font);
-	temp_str = std::to_string(*sensitivity);
+	temp_str = std::to_string(temp_input->sensitivity);
 	sensitivity_LineEdit->setText(QString::fromStdString(temp_str.substr(0, temp_str.find(".") +2)));
 	Oc_LineEdit = new QLineEdit(this);
 	Oc_LineEdit->setGeometry(QRect(QPoint(200, 20), QSize(700, 50)));
 	Oc_LineEdit->setFont(*font);
 
+
 	temp_str = "";
-	for (int i = 0; i < oc_center_freq.size(); i++) {
-		std::string temp_float = std::to_string(oc_center_freq[i]);
+	for (int i = 0; i < temp_input->Oc_Center_frequency.size(); i++) {
+		std::string temp_float = std::to_string(temp_input->Oc_Center_frequency[i]);
 		temp_float = temp_float.substr(0, temp_float.find(".") + 2);
 		temp_str += temp_float;
 		temp_str += ", ";
 	}
 	Oc_LineEdit->setText(QString::fromStdString(temp_str));
 	
+
+	OC_band_check = new QCheckBox(this);
+	OC_band_check->setGeometry(QRect(QPoint(600, 120), QSize(150, 50)));
+	OC_band_check->setChecked(temp_input->check_octave_band);
+	OC_check_Label = new QLabel("1/3 Octave Band :",this);
+	OC_check_Label->setGeometry(QRect(QPoint(400, 120), QSize(200, 50)));
+	OC_check_Label->setFont(*font);
+
+	ACI_check = new QCheckBox(this);
+	ACI_check->setGeometry(QRect(QPoint(900, 120), QSize(150, 50)));
+	ACI_check->setChecked(temp_input->check_ACI_map);
+	ACI_check_Label = new QLabel("ACI Calculate :", this);
+	ACI_check_Label->setGeometry(QRect(QPoint(740, 120), QSize(160, 50)));
+	ACI_check_Label->setFont(*font);
 
 	confirm_button = new QPushButton("Confirm", this);
 	confirm_button->setGeometry(QRect(QPoint(800, 400), QSize(150, 50)));
@@ -62,13 +73,15 @@ Setting_Panel::Setting_Panel(double *win, double *noverlap, double* sensitivity,
 
 }
 void Setting_Panel::Change_value() {
-	*temp_win = std::stod(window_LineEdit->text().toUtf8().constData());
-	*temp_noverlap = std::stod(noverlap_LineEdit->text().toUtf8().constData());
-	*temp_sensitivity = std::stod(sensitivity_LineEdit->text().toUtf8().constData());
+	temp_input->win = std::stod(window_LineEdit->text().toUtf8().constData());
+	temp_input->noverlap = std::stod(noverlap_LineEdit->text().toUtf8().constData());
+	temp_input->sensitivity = std::stod(sensitivity_LineEdit->text().toUtf8().constData());
 	std::string a = Oc_LineEdit->text().toUtf8().constData();
 	std::vector<double> aa = transfer_string_doble(a);
-	*temp_oc_center_freq = aa;
+	temp_input->Oc_Center_frequency = aa;
 	this->close();
+	temp_input->check_ACI_map = ACI_check->isChecked();
+	temp_input->check_octave_band = OC_band_check->isChecked();
 }
 std::vector<double> Setting_Panel::transfer_string_doble(std::string a) {
 	std::vector<double> result;

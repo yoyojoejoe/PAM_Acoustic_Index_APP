@@ -36,13 +36,16 @@ void Spectral_analyze::STFT(int window, int noverlap) {
     spectrogram = spectrogram * (1.0 / (1.0 * fs * window));
     VectorXd temp2 = spectrogram.rowwise().mean();
     spectrogram_linear = spectrogram;
+    Spectrum_linear = temp2.block(0, 0, spectrogram.rows() / 2 + 1, 1);
     temp2.array() = 10 * temp2.array().log10() + sensitivity;
     Spectrum = temp2.block(0, 0, spectrogram.rows() / 2 + 1, 1);
+    
     frequency_spectrum = VectorXd::LinSpaced(window / 2 + 1, 0, fs / 2);
     spectrogram.array() = 10 * spectrogram.array().log10() + sensitivity;
 }
 
 void Spectral_analyze::Octave_Band(std::vector<double>center_frequency,int window) {
+    Octave_3_1 = VectorXd::Zero(center_frequency.size());
     for (int i = 0; i < center_frequency.size(); i++) {
         
         double low_freq = center_frequency[i] / std::pow(2 , (1.0/6.0));
@@ -56,15 +59,31 @@ void Spectral_analyze::Octave_Band(std::vector<double>center_frequency,int windo
             high_index = Spectrum.size() - 1;
         }
         VectorXd temp = Spectrum_linear.segment(low_index, high_index);
-        double temp_2 = temp.mean();
-        Octave_3_1.push_back(10*log10(temp_2)+sensitivity);
+        double temp_2 = temp.sum();
+        Octave_3_1[i] = (10 * log10(temp_2) + sensitivity);
     }
     
 }
 
 void Spectral_analyze::ACI_Calculate() {
+    int a = spectrogram_linear.rows();
+    int b = spectrogram_linear.cols();
     ACI_map = MatrixXd::Zero(spectrogram_linear.rows(), spectrogram_linear.cols() - 1);
+    VectorXd sum_spec = spectrogram_linear.rowwise().sum().array();
     for (int i = 1; i < spectrogram_linear.cols(); i++) {
-        ACI_map.col(i) = spectrogram_linear.col(i) - spectrogram_linear.col(i - 1);
+        ACI_map.col(i-1) = spectrogram_linear.col(i) - spectrogram_linear.col(i - 1);
+        ACI_map.col(i - 1).array() = ACI_map.col(i - 1).array().abs() / sum_spec.array();
     }
+
+    VectorXd temp2 = ACI_map.rowwise().sum();
+    ACI_spectrum = temp2.block(0, 0, ACI_map.rows() / 2 + 1, 1);
+}
+
+void Spectral_analyze::save_as_csv(VectorXd spectrum, std::string file_path) {
+    std::ofstream spectrogram_file(file_path, std::ios_base::app);
+    for (int i = 0; i < spectrum.size(); i++) {
+        spectrogram_file << spectrum[i] << ',';
+    }
+    spectrogram_file << '\n';
+    spectrogram_file.close();
 }

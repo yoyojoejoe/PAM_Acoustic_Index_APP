@@ -104,6 +104,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LTSM\Acoustic_Input.h" />
     <ClInclude Include="LTSM\LTSM.h" />
     <ClInclude Include="LTSM\Setting_Panel.h" />
     <ClInclude Include="Single_wav_spectrogram\single_wav_spectrogram.h" />

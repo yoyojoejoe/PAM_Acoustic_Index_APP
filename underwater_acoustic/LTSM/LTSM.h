@@ -15,11 +15,10 @@
 #include <fstream> 
 #include<stdio.h>
 #include<vector>
-
 #include"Setting_Panel.h"
 #include"../tool/qcustomplot.h"
 #include"../tool/Spectral_analyze.h"
-
+#include"Acoustic_Input.h"
 class LTSM : public QWidget{
 public:
     
@@ -58,11 +57,7 @@ public:
 
     Setting_Panel* Acoustic_Setting_Panel_Class;
     //setting variable
-    double win;
-    double noverlap;
-    double sensitivity;
 
-    bool check_total_spectrogram;
-    bool check_octave_band;
-    std::vector<double> Oc_Center_frequency;
+
+    Acousic_Input acoustic_input;
 };

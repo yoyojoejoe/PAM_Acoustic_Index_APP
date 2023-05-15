@@ -3,19 +3,21 @@
 
 LTSM::LTSM(QWidget* parent)
 {
-    check_total_spectrogram = true;
-    check_octave_band = true;
-    win = 0.10;
-    noverlap = 0.0;
-    sensitivity = 176.3;
-    Oc_Center_frequency.push_back(63);
-    Oc_Center_frequency.push_back(125);
-    Oc_Center_frequency.push_back(400);
-    Oc_Center_frequency.push_back(1000);
-    Oc_Center_frequency.push_back(2000);
-    Oc_Center_frequency.push_back(4000);
-    Oc_Center_frequency.push_back(8000);
-    Oc_Center_frequency.push_back(16000);
+    //Initialize
+    acoustic_input.check_total_spectrogram = true;
+    acoustic_input.check_octave_band = true;
+    acoustic_input.check_ACI_map = true;
+    acoustic_input.win = 0.1;
+    acoustic_input.noverlap = 0.0;
+    acoustic_input.sensitivity = 176.3;
+    acoustic_input.Oc_Center_frequency.push_back(63);
+    acoustic_input.Oc_Center_frequency.push_back(125);
+    acoustic_input.Oc_Center_frequency.push_back(400);
+    acoustic_input.Oc_Center_frequency.push_back(1000);
+    acoustic_input.Oc_Center_frequency.push_back(2000);
+    acoustic_input.Oc_Center_frequency.push_back(4000);
+    acoustic_input.Oc_Center_frequency.push_back(8000);
+    acoustic_input.Oc_Center_frequency.push_back(16000);
 
     font = new QFont();
 
@@ -100,17 +102,18 @@ void LTSM::Analyze() {
     load_wav_file();
     wav_processing->setText(QString::fromStdString(load_path_list[0]));
     QCoreApplication::processEvents();
-    Spectral_analyze* spec2 = new Spectral_analyze(sensitivity);
+    Spectral_analyze* spec2 = new Spectral_analyze(acoustic_input.sensitivity);
     spec2->Audio_read(load_path_list[0]);
     //spec.Audio_read(load_path_list[0]);
     //int win = std::stod(window->text().toUtf8().constData()) * (1.0 * spec2->fs);
     //int overlap = std::stod(noverlap->text().toUtf8().constData()) * (1.0 * spec2->fs);
-    int temp_win = win * spec2->fs;
-    int temp_noverlap = noverlap * spec2->fs;
+    int temp_win = acoustic_input.win * spec2->fs;
+    int temp_noverlap = acoustic_input.noverlap * spec2->fs;
     //save_frequency
     std::string spectrogram_file_path = "";
     std::string Oc_file_path = "";
-    if (check_total_spectrogram) {
+    std::string ACI_file_path = "";
+    if (acoustic_input.check_total_spectrogram) {
         spectrogram_file_path = save_file->text().toUtf8().constData();
         spectrogram_file_path += "/Total_Spectrogram.csv";
         std::ofstream spectrogram_file(spectrogram_file_path);
@@ -120,12 +123,22 @@ void LTSM::Analyze() {
         spectrogram_file << '\n';
         spectrogram_file.close();
     }
-    if (check_octave_band) {
+    if (acoustic_input.check_ACI_map) {
+        ACI_file_path = save_file->text().toUtf8().constData();
+        ACI_file_path += "/ACI.csv";
+        std::ofstream ACI_file(ACI_file_path);
+        for (int i = 0; i < temp_win / 2 + 1; i++) {
+            ACI_file << i * (spec2->fs) / temp_win << ",";
+        }
+        ACI_file << '\n';
+        ACI_file.close();
+    }
+    if (acoustic_input.check_octave_band) {
         Oc_file_path = save_file->text().toUtf8().constData();
         Oc_file_path += "/One_Third_Octave_Band.csv";
         std::ofstream Octave_Band_file(Oc_file_path);
-        for (int i = 0; i < Oc_Center_frequency.size(); i++) {
-            Octave_Band_file << Oc_Center_frequency[i] << ",";
+        for (int i = 0; i < acoustic_input.Oc_Center_frequency.size(); i++) {
+            Octave_Band_file << acoustic_input.Oc_Center_frequency[i] << ",";
         }
         Octave_Band_file << '\n';
         Octave_Band_file.close();
@@ -135,29 +148,32 @@ void LTSM::Analyze() {
     //spec.LTSM_Time();
     for (int i = 0; i < load_path_list.size(); i++) {
         temp_spectrum.clear();
-        Spectral_analyze* spec = new Spectral_analyze(sensitivity);
+        Spectral_analyze* spec = new Spectral_analyze(acoustic_input.sensitivity);
         wav_processing->setText(QString::fromStdString(load_path_list[i]));
         QCoreApplication::processEvents();
         spec->Audio_read(load_path_list[i]);
         spec->STFT(temp_win, temp_noverlap);
         
-
-
-
-        if (check_total_spectrogram) {
-            for (int j = 0; j < temp_win / 2 + 1; j++) {
-                temp_spectrum.push_back(spec->Spectrum[j]);
-            }
+        if (acoustic_input.check_total_spectrogram) {
+            //for (int j = 0; j < temp_win / 2 + 1; j++) {
+                //temp_spectrum.push_back(spec->Spectrum[j]);
+            //}
+            temp_spectrum.resize(spec->Spectrum.size());
+            VectorXd::Map(&temp_spectrum[0], spec->Spectrum.size()) = spec->Spectrum;
             Long_Spectrogram.push_back(temp_spectrum);
-            save_as_csv(temp_spectrum, spectrogram_file_path);
+            spec->save_as_csv(spec->Spectrum, spectrogram_file_path);
             draw_spectrogram(spec);
             
         }
-        if (check_octave_band) {
-            spec->Octave_Band(Oc_Center_frequency, temp_win);
-            save_as_csv(spec->Octave_3_1, Oc_file_path);
+
+        if (acoustic_input.check_octave_band) {
+            spec->Octave_Band(acoustic_input.Oc_Center_frequency, temp_win);
+            spec->save_as_csv(spec->Octave_3_1, Oc_file_path);
         }
-        
+        if (acoustic_input.check_ACI_map) {
+            spec->ACI_Calculate();
+            spec->save_as_csv(spec->ACI_spectrum, ACI_file_path);
+        }
 
         delete(spec);
     }
@@ -233,7 +249,7 @@ void LTSM::load_wav_file() {
 }
 void LTSM::open_setting_pannel() {
     
-    Acoustic_Setting_Panel_Class = new Setting_Panel(&win,&noverlap,&sensitivity, Oc_Center_frequency);
+    Acoustic_Setting_Panel_Class = new Setting_Panel(&acoustic_input);
     Acoustic_Setting_Panel_Class->setFixedSize(1000, 500);
     Acoustic_Setting_Panel_Class->show();
     
