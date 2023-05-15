@@ -58,7 +58,7 @@ void Spectral_analyze::Octave_Band(std::vector<double>center_frequency,int windo
         if (high_index >= Spectrum.size()) {
             high_index = Spectrum.size() - 1;
         }
-        VectorXd temp = Spectrum_linear.segment(low_index, high_index);
+        VectorXd temp = Spectrum_linear.segment(low_index, high_index-low_index);
         double temp_2 = temp.sum();
         Octave_3_1[i] = (10 * log10(temp_2) + sensitivity);
     }

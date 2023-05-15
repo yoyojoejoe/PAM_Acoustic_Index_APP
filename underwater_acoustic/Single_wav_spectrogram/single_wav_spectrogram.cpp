@@ -118,6 +118,7 @@ void single_wav_spectrogram::spectrogram_plot() {
             pcolor->data()->setCell(i, j, spec->spectrogram(j,i));
         }
     }
+
     QCPColorScale* colorScale = new QCPColorScale(spectrogram);
     spectrogram->plotLayout()->addElement(0, 1, colorScale);
     colorScale->setType(QCPAxis::atRight);
@@ -130,6 +131,7 @@ void single_wav_spectrogram::spectrogram_plot() {
     spectrogram->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, marginGroup);
     colorScale->setMarginGroup(QCP::msBottom | QCP::msTop, marginGroup);
     spectrogram->rescaleAxes();
+    //spectrogram->yAxis->setScaleType(QCPAxis::stLogarithmic);
     spectrogram->replot();
     spectrogram->show();
 }
@@ -155,6 +157,7 @@ void single_wav_spectrogram::spectrum_plot() {
     fig->graph(0)->setData(x, y);
     fig->xAxis->setRange(spec->frequency_spectrum.minCoeff(), spec->frequency_spectrum.maxCoeff());
     fig->yAxis->setRange(spec->Spectrum.minCoeff(), spec->Spectrum.array().maxCoeff());
+    //fig->xAxis->setScaleType(QCPAxis::stLogarithmic);
     // give the axes some labels:
     fig->xAxis->setLabel("Frequency (Hz)");
     fig->yAxis->setLabel("SPL (dB)");
@@ -180,6 +183,7 @@ void single_wav_spectrogram::wave_plot() {
     fig->graph(0)->setData(x, y);
     fig->xAxis->setRange(spec->time_wav.minCoeff(), spec->time_wav.maxCoeff());
     fig->yAxis->setRange(spec->data.minCoeff(), spec->data.array().maxCoeff());
+    fig->xAxis->setScaleType(QCPAxis::stLinear);
     // give the axes some labels:
     fig->xAxis->setLabel("Frequency (Hz)");
     fig->yAxis->setLabel("SPL (dB)");

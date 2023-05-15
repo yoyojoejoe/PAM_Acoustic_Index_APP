@@ -23,11 +23,13 @@ class LTSM : public QWidget{
 public:
     
     LTSM(QWidget* parent = nullptr);
-    void read_file_path();
-    void save_file_path();
-    void Analyze();
+    void read_file_path();//read wav file dir path
+    void save_file_path();//read save file dir path
+    void Analyze();//Start to analize
     void open_setting_pannel();
-    void save_as_csv(std::vector<double> spectrum, std::string file_path);
+    void draw_spectrogram(Spectral_analyze* spec);//draw and renew the spetrogram figure
+    void load_wav_file();//load all the wav file in the dir
+    void generate_report();
     ~LTSM();
     QPushButton* audio_file_read_button;//read the audio file
     QPushButton* save_file_read_button;//read the save_file path
@@ -38,26 +40,21 @@ public:
     QLineEdit* save_file;//Audio file path 
     QLineEdit* wav_processing;//which wav file is processing
 
-    QLabel* Audio_file_label;
-    QLabel* Spec_file_label;
+    QLabel* Audio_file_label;//Audio file label
+    QLabel* Spec_file_label;//Result file label
 
 
-    QFont* font;
-    QString dir;
+    QFont* font;// Font variable
+    QString dir;//dir variable
 
-    void draw_spectrogram(Spectral_analyze* spec);
-    void load_wav_file();
-    std::string load_path;
-    std::string save_path;
-    std::vector<std::string> load_path_list;
-    std::vector<std::vector<double>> Long_Spectrogram;
+    
+    std::string load_path;//wave file path string
+    std::string save_path;//result file path string
+    std::vector<std::string> load_path_list;// all the wave file path
+    std::vector<std::vector<double>> Long_Spectrogram;// all the spectrogram
 
     QCustomPlot* spectrogram;//spectrogram
-    QCPColorMap* pcolor;
-
-    Setting_Panel* Acoustic_Setting_Panel_Class;
-    //setting variable
-
-
-    Acousic_Input acoustic_input;
+    QCPColorMap* pcolor;//spectrogram
+    Setting_Panel* Acoustic_Setting_Panel_Class;//Acoustic setting panel
+    Acousic_Input acoustic_input;//Acoustic setting input variable
 };
