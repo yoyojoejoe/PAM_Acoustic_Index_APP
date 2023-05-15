@@ -87,3 +87,16 @@ void Spectral_analyze::save_as_csv(VectorXd spectrum, std::string file_path) {
     spectrogram_file << '\n';
     spectrogram_file.close();
 }
+void Spectral_analyze::Ambient_Noise_Estimate(double percentile) {
+    std::vector<double> sort_array;
+    Ambient_Noise_Spectrum = VectorXd::Zero(spectrogram_linear.rows());
+    for (int i = 0; i < spectrogram_linear.rows()/2+1; i++) {
+        sort_array.clear();
+        for (int j = 0; j < spectrogram_linear.cols(); j++) {
+            sort_array.push_back(spectrogram_linear(i,j));
+        }
+        std::sort(sort_array.begin(), sort_array.end());
+        Ambient_Noise_Spectrum[i] = -sort_array[sort_array.size()*percentile]/log(1.0-percentile);
+        Ambient_Noise_Spectrum[i] = 10 * std::log10(Ambient_Noise_Spectrum[i]) + sensitivity;
+    }
+}

@@ -9,6 +9,7 @@ struct Acousic_Input {
     bool check_total_spectrogram;
     bool check_octave_band;
     bool check_ACI_map;
+    bool check_Ambient_estimate;
     std::vector<double> Oc_Center_frequency;
 };
 #endif

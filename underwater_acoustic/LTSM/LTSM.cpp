@@ -7,6 +7,7 @@ LTSM::LTSM(QWidget* parent)
     acoustic_input.check_total_spectrogram = true;
     acoustic_input.check_octave_band = true;
     acoustic_input.check_ACI_map = true;
+    acoustic_input.check_Ambient_estimate = true;
     acoustic_input.win = 1;
     acoustic_input.noverlap = 0.0;
     acoustic_input.sensitivity = 176.3;
@@ -113,6 +114,7 @@ void LTSM::Analyze() {
     std::string spectrogram_file_path = "";
     std::string Oc_file_path = "";
     std::string ACI_file_path = "";
+    std::string Ambient_file_path = "";
     if (acoustic_input.check_total_spectrogram) {
         spectrogram_file_path = save_file->text().toUtf8().constData();
         spectrogram_file_path += "/Total_Spectrogram.csv";
@@ -142,6 +144,16 @@ void LTSM::Analyze() {
         }
         Octave_Band_file << '\n';
         Octave_Band_file.close();
+    }
+    if (acoustic_input.check_Ambient_estimate) {
+        Ambient_file_path = save_file->text().toUtf8().constData();
+        Ambient_file_path += "/Ambient_Noise.csv";
+        std::ofstream Ambient_file(ACI_file_path);
+        for (int i = 0; i < temp_win / 2 + 1; i++) {
+            Ambient_file << i * (spec2->fs) / temp_win << ",";
+        }
+        Ambient_file << '\n';
+        Ambient_file.close();
     }
     delete(spec2);
     //spec.STFT(win, overlap);
@@ -174,7 +186,10 @@ void LTSM::Analyze() {
             spec->ACI_Calculate();
             spec->save_as_csv(spec->ACI_spectrum, ACI_file_path);
         }
-
+        if (acoustic_input.check_Ambient_estimate) {
+            spec->Ambient_Noise_Estimate(0.2);
+            spec->save_as_csv(spec->Ambient_Noise_Spectrum, Ambient_file_path);
+        }
         delete(spec);
     }
     generate_report();
@@ -247,23 +262,43 @@ void LTSM::open_setting_pannel() {
     
 }
 void LTSM::generate_report() {
+
+    SYSTEMTIME sys;
+    GetLocalTime(&sys);
+    char tmp[64]{ NULL };
+    sprintf(tmp, "%4d-%02d-%02d %02d:%02d:%02d",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond);
+
     std::string report_file_path = "";
     report_file_path = save_file->text().toUtf8().constData() ;
     report_file_path += "/report.txt";
     std::ofstream report_file(report_file_path);
-
+    report_file << "Report Generating Time : " << tmp << std::endl;
+    report_file << std::endl << "===========================================Acoustic Settings===============================================" << std::endl;
     report_file << "Sensitivity : "<< acoustic_input.sensitivity<<std::endl;
     report_file << "Window Length (s) : " << acoustic_input.win << std::endl;
     report_file << "Noverlap Length (s) : " << acoustic_input.noverlap << std::endl;
-    report_file << "Total Spectrogram State : " << acoustic_input.check_total_spectrogram<< std::endl;
-    report_file << "1/3 Octave Band : " << acoustic_input.check_octave_band << std::endl;
-    report_file << "Acoustic Complexity Index (ACI) : " << acoustic_input.check_ACI_map << std::endl;
-    report_file << "1/3 Octave Band Center Frequency : ";
-    for (int i = 0; i < acoustic_input.Oc_Center_frequency.size();i++) {
-        report_file << acoustic_input.Oc_Center_frequency[i] << " ";
+    report_file << "Calculate Variable : ";
+    if (acoustic_input.check_total_spectrogram) {
+        report_file << "Total Spectrogram, ";
     }
+    
+    if (acoustic_input.check_ACI_map) {
+        report_file << "Acoustic Complexity Index(ACI), ";
+    }
+    if (acoustic_input.check_Ambient_estimate) {
+        report_file << "Ambient Noise Estimate, ";
+    }
+    if (acoustic_input.check_octave_band) {
+        report_file << "1/3 Octave Band, " << std::endl;
+        report_file << "1/3 Octave Band Center Frequency : ";
+        for (int i = 0; i < acoustic_input.Oc_Center_frequency.size(); i++) {
+            report_file << acoustic_input.Oc_Center_frequency[i] << " ";
+        }
+    }
+    report_file <<std::endl<< "=============================================System Settings============================================="<<std::endl;
     report_file << std::endl << "Input File Path : " << audio_file->text().toUtf8().constData() << std::endl;
     report_file << "Output File Path : " << save_file->text().toUtf8().constData() << std::endl;
+    report_file << "File Numbers : " << load_path_list.size() << std::endl;
     report_file.close();
 
 }

@@ -42,6 +42,8 @@ public:
     QLabel* OC_check_Label;
     QCheckBox* ACI_check;
     QLabel* ACI_check_Label;
+    QCheckBox* Ambient_check;
+    QLabel* Ambient_check_Label;
 
     QPushButton* confirm_button;
     

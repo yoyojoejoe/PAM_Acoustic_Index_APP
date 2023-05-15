@@ -23,6 +23,7 @@ public:
     void Audio_read(std::string file_name);//read the audio file
     void Octave_Band(std::vector<double>center_frequency,int window);
     void ACI_Calculate();
+    void Ambient_Noise_Estimate(double percentile);
     void save_as_csv(VectorXd spectrum, std::string file_path);
     int fs;
     VectorXd data;//Audiofile_data
@@ -33,6 +34,7 @@ public:
     VectorXd time_wav;//original_wav time;
     VectorXd Spectrum;//spectrum (dB scale psd)
     VectorXd Spectrum_linear;//Spectrum (linear scale psd)
+    VectorXd Ambient_Noise_Spectrum;//Ambient Noise Spectrum (dB scale psd)
     MatrixXd spectrogram;//Spectrogram (dB scale psd)
     MatrixXd spectrogram_linear;//Spectrogram (linear scale psd)
     MatrixXd ACI_map;

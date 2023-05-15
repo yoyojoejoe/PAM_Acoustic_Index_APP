@@ -66,6 +66,14 @@ Setting_Panel::Setting_Panel(Acousic_Input *input, QWidget* parent) {
 	ACI_check_Label->setGeometry(QRect(QPoint(740, 120), QSize(160, 50)));
 	ACI_check_Label->setFont(*font);
 
+	Ambient_check = new QCheckBox(this);
+	Ambient_check->setGeometry(QRect(QPoint(600, 220), QSize(150, 50)));
+	Ambient_check->setChecked(temp_input->check_Ambient_estimate);
+	Ambient_check_Label = new QLabel("Ambient Noise Estimate :", this);
+	Ambient_check_Label->setGeometry(QRect(QPoint(400, 220), QSize(160, 50)));
+	Ambient_check_Label->setFont(*font);
+
+
 	confirm_button = new QPushButton("Confirm", this);
 	confirm_button->setGeometry(QRect(QPoint(800, 400), QSize(150, 50)));
 	confirm_button->setFont(*font);
@@ -82,6 +90,7 @@ void Setting_Panel::Change_value() {
 	this->close();
 	temp_input->check_ACI_map = ACI_check->isChecked();
 	temp_input->check_octave_band = OC_band_check->isChecked();
+	temp_input->check_Ambient_estimate = Ambient_check->isChecked();
 }
 std::vector<double> Setting_Panel::transfer_string_doble(std::string a) {
 	std::vector<double> result;

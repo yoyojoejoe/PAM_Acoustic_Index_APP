@@ -15,6 +15,8 @@
 #include <fstream> 
 #include<stdio.h>
 #include<vector>
+#include<time.h>
+#include<Windows.h>
 #include"Setting_Panel.h"
 #include"../tool/qcustomplot.h"
 #include"../tool/Spectral_analyze.h"
