@@ -20,6 +20,7 @@
  Function and usage with different tools:
  
  1.Single Wav spectrogram:Read .wav file and plot the spectrum and spectrogram.
+ 
  2.LTSM pannel: Read multiple long time wave files and combine into one spectrogram also calculate, 1/3 Octave Band, Acoustic
                 Complexity Index (ACI), Ambient Noise Estimate (transient signal filter).
  
