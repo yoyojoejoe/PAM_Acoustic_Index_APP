@@ -3,23 +3,9 @@
 
 LTSM::LTSM(QWidget* parent)
 {
-    //Initialize the input_number
-    acoustic_input.check_total_spectrogram = true;
-    acoustic_input.check_octave_band = true;
-    acoustic_input.check_ACI_map = true;
-    acoustic_input.check_Ambient_estimate = true;
-    acoustic_input.win = 1;
-    acoustic_input.noverlap = 0.0;
-    acoustic_input.sensitivity = 176.3;
-    acoustic_input.Oc_Center_frequency.push_back(63);
-    acoustic_input.Oc_Center_frequency.push_back(125);
-    acoustic_input.Oc_Center_frequency.push_back(400);
-    acoustic_input.Oc_Center_frequency.push_back(1000);
-    acoustic_input.Oc_Center_frequency.push_back(2000);
-    acoustic_input.Oc_Center_frequency.push_back(4000);
-    acoustic_input.Oc_Center_frequency.push_back(8000);
-    acoustic_input.Oc_Center_frequency.push_back(16000);
+    
 
+    initialize();
     font = new QFont();
 
     font->setFamily("Verdana");
@@ -37,6 +23,8 @@ LTSM::LTSM(QWidget* parent)
     analyze_button->setGeometry(QRect(QPoint(20, 190), QSize(150, 50)));
     Setting_Button = new QPushButton("Acoustic Setting Panel", this);
     Setting_Button->setGeometry(QRect(QPoint(600, 20), QSize(250, 50)));
+    Figure_Setting_Button = new QPushButton("Figure Setting Panel", this);
+    Figure_Setting_Button->setGeometry(QRect(QPoint(600, 120), QSize(250, 50)));
 
     
     
@@ -44,11 +32,14 @@ LTSM::LTSM(QWidget* parent)
     audio_file_read_button->setFont(*font);
     save_file_read_button->setFont(*font);
     Setting_Button->setFont(*font);
+    Figure_Setting_Button->setFont(*font);
     //connect to the function
     connect(audio_file_read_button, &QPushButton::clicked, this, &LTSM::read_file_path);
     connect(save_file_read_button, &QPushButton::clicked, this, &LTSM::save_file_path);
     connect(analyze_button, &QPushButton::clicked, this, &LTSM::Analyze);
     connect(Setting_Button, &QPushButton::clicked, this, &LTSM::open_setting_pannel);
+    connect(Figure_Setting_Button, &QPushButton::clicked, this, &LTSM::open_figure_setting_pannel);
+
     //Line Edit Audio file path
     audio_file = new QLineEdit(this);
     save_file = new QLineEdit(this);
@@ -93,6 +84,7 @@ void LTSM::save_file_path() {
     save_file->setText(dir);
 }
 void LTSM::Analyze() {
+    DWORD star_time = GetTickCount();//Analyze Function Time Calculate
     spectrogram = new QCustomPlot(this);
     spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
     Long_Spectrogram.clear();
@@ -167,9 +159,6 @@ void LTSM::Analyze() {
         spec->STFT(temp_win, temp_noverlap);
         
         if (acoustic_input.check_total_spectrogram) {// all spectrogram
-            //for (int j = 0; j < temp_win / 2 + 1; j++) {
-                //temp_spectrum.push_back(spec->Spectrum[j]);
-            //}
             temp_spectrum.resize(spec->Spectrum.size());
             VectorXd::Map(&temp_spectrum[0], spec->Spectrum.size()) = spec->Spectrum;
             Long_Spectrogram.push_back(temp_spectrum);
@@ -187,41 +176,48 @@ void LTSM::Analyze() {
             spec->save_as_csv(spec->ACI_spectrum, ACI_file_path);
         }
         if (acoustic_input.check_Ambient_estimate) {
-            spec->Ambient_Noise_Estimate(0.2);
+            spec->Ambient_Noise_Estimate(acoustic_input.ambient_estimate_percentile);
             spec->save_as_csv(spec->Ambient_Noise_Spectrum, Ambient_file_path);
         }
         delete(spec);
     }
-    generate_report();
+    DWORD end_time = GetTickCount();//Analyze Function Time Calculate
+    generate_report((end_time-star_time)/1000);
     
 }
 void LTSM::draw_spectrogram(Spectral_analyze* spec) {
-    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));;
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));
     spectrogram->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
     spectrogram->axisRect()->setupFullAxesBox(true);
-    spectrogram->xAxis->setLabel("Time (s)");
+    spectrogram->xAxis->setLabel("Time");
     spectrogram->yAxis->setLabel("Frequency (Hz)");
     pcolor = new QCPColorMap(spectrogram->xAxis, spectrogram->yAxis);
     int nx = Long_Spectrogram.size();
     int ny = Long_Spectrogram[0].size();
     pcolor->data()->setSize(nx, ny);
-    pcolor->data()->setRange(QCPRange(spec->time(0), spec->time(nx - 1)), QCPRange(spec->frequency(0), spec->frequency(ny - 1))); // and span the coordinate range -4..4 in both key (x) and value (y) dimensions
+    pcolor->data()->setRange(QCPRange(0, nx), QCPRange(spec->frequency(0), spec->frequency(ny - 1))); // and span the coordinate range -4..4 in both key (x) and value (y) dimensions
     //pcolor->data()->setRange(QCPRange(spec->time.minCoeff(), spec->time.maxCoeff()), QCPRange(spec->frequency.minCoeff(), spec->frequency.minCoeff()));
     // now we assign some data, by accessing the QCPColorMapData instance of the color map:
     for (int i = 0; i < nx; i++)
     {
-        for (int j = 0; j < ny; j++)
+        for (int j = 0; j <= ny; j++)
         {
             pcolor->data()->setCell(i, j, Long_Spectrogram[i][j]);
+            
         }
+        
     }
+    pcolor->data()->setCell(0, 0, 0);
+    pcolor->data()->setCell(0, 1, 100);
     QCPColorScale* colorScale = new QCPColorScale(spectrogram);
+    QCPColorGradient* colorgradient = new QCPColorGradient();
     spectrogram->plotLayout()->addElement(0, 1, colorScale);
     colorScale->setType(QCPAxis::atRight);
-    colorScale->setDataRange(QCPRange(0, 150));
-    pcolor->setColorScale(colorScale);
+    //colorScale->setDataRange(QCPRange(-100, 150));
     colorScale->axis()->setLabel("SPL");
+    pcolor->setColorScale(colorScale);
     pcolor->setGradient(QCPColorGradient::gpJet);
+    
     pcolor->rescaleDataRange();
     QCPMarginGroup* marginGroup = new QCPMarginGroup(spectrogram);
     spectrogram->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, marginGroup);
@@ -261,7 +257,13 @@ void LTSM::open_setting_pannel() {
     Acoustic_Setting_Panel_Class->show();
     
 }
-void LTSM::generate_report() {
+void LTSM::open_figure_setting_pannel() {
+    Figure_Setting_Panel_Class = new Figure_Setting_Panel(&figure_input);
+    Figure_Setting_Panel_Class->setFixedSize(1000, 500);
+    Figure_Setting_Panel_Class->show();
+}
+
+void LTSM::generate_report(double system_time) {
 
     SYSTEMTIME sys;
     GetLocalTime(&sys);
@@ -299,9 +301,39 @@ void LTSM::generate_report() {
     report_file << std::endl << "Input File Path : " << audio_file->text().toUtf8().constData() << std::endl;
     report_file << "Output File Path : " << save_file->text().toUtf8().constData() << std::endl;
     report_file << "File Numbers : " << load_path_list.size() << std::endl;
+    report_file << "File Process Time(s) : " << system_time << std::endl;
     report_file.close();
 
 }
+void LTSM::initialize() {
+    //Initialize the input_number
+    acoustic_input.check_total_spectrogram = true;
+    acoustic_input.check_octave_band = true;
+    acoustic_input.check_ACI_map = true;
+    acoustic_input.check_Ambient_estimate = true;
+    acoustic_input.win = 1;
+    acoustic_input.noverlap = 0.0;
+    acoustic_input.sensitivity = 176.3;
+    acoustic_input.ambient_estimate_percentile = 0.2;
+    acoustic_input.Oc_Center_frequency.push_back(63);
+    acoustic_input.Oc_Center_frequency.push_back(125);
+    acoustic_input.Oc_Center_frequency.push_back(400);
+    acoustic_input.Oc_Center_frequency.push_back(1000);
+    acoustic_input.Oc_Center_frequency.push_back(2000);
+    acoustic_input.Oc_Center_frequency.push_back(4000);
+    acoustic_input.Oc_Center_frequency.push_back(8000);
+    acoustic_input.Oc_Center_frequency.push_back(16000);
 
+    //figure_input_initialize
+    figure_input.xlim_low = 0;
+    figure_input.xlim_high = 0;
+    figure_input.ylim_low = 0;
+    figure_input.ylim_high = 0;
+    figure_input.clim_low = 0;
+    figure_input.clim_high = 0;
+    figure_input.Figure_setting_type = 1;
+    figure_input.auto_scale = true;
+
+}
 LTSM::~LTSM()
 {}

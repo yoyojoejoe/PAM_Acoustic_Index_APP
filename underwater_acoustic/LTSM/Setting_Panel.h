@@ -25,17 +25,18 @@ public:
 
     void Change_value();
     std::vector<double> transfer_string_doble(std::string a);
-    //Setting_Panel(double *win,double *noverlap,double *sensitivity, std::vector<double> &oc_center_freq,QWidget* parent = nullptr);
     Setting_Panel(Acousic_Input *input, QWidget* parent = nullptr);
     ~Setting_Panel();
     QLineEdit* window_LineEdit;//window
     QLineEdit* noverlap_LineEdit;//noverlap
     QLineEdit* sensitivity_LineEdit;//Sensitivity
     QLineEdit* Oc_LineEdit;//Sensitivity
+    QLineEdit* percentile_LineEdit;//percentile
     QLabel* window_Label;
     QLabel* noverlap_Label;
     QLabel* sensitivity_Label;
     QLabel* Oc_Label;
+    QLabel* percentile_Label;
     QFont* font;
 
     QCheckBox* OC_band_check;

@@ -58,6 +58,9 @@
     <ClCompile Include="LTSM\Setting_Panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LTSM\Figure_Setting_Panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LTSM\LTSM.h">
@@ -76,6 +79,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LTSM\Acoustic_Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LTSM\Figure_Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LTSM\Figure_Setting_Panel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
