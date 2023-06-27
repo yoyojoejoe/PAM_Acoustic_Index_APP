@@ -136,8 +136,8 @@ void single_wav_spectrogram::spectrogram_plot() {
     spectrogram->show();
 }
 void single_wav_spectrogram::spectrum_plot() {
-    fig->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));;
-    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
+    fig->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));
     std::string path = audio_file->text().toUtf8().constData();
     std::string path2 = save_file->text().toUtf8().constData();
     Spectral_analyze* spec = new Spectral_analyze(176.3);

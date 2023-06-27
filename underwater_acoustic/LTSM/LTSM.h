@@ -33,7 +33,9 @@ public:
     void Analyze();//Start to analize
     void open_setting_pannel();
     void open_figure_setting_pannel();
+    void draw_spectrum(Spectral_analyze* spec);
     void draw_spectrogram(Spectral_analyze* spec);//draw and renew the spetrogram figure
+    void draw_Oc_Band(Spectral_analyze* spec);
     void load_wav_file();//load all the wav file in the dir
     void generate_report(double system_time);
     ~LTSM();
@@ -63,6 +65,9 @@ public:
 
     QCustomPlot* spectrogram;//spectrogram
     QCPColorMap* pcolor;//spectrogram
+    QCustomPlot* fig;
+    QCPBars* Oc_Band;
+
     Setting_Panel* Acoustic_Setting_Panel_Class;//Acoustic setting panel
     Figure_Setting_Panel* Figure_Setting_Panel_Class;//Figure setting panel
     Acousic_Input acoustic_input;//Acoustic setting input variable

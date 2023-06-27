@@ -10,8 +10,12 @@ LTSM::LTSM(QWidget* parent)
 
     font->setFamily("Verdana");
     font->setPointSize(15);
-    
-    
+
+    spectrogram = new QCustomPlot(this);
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
+    fig = new QCustomPlot(this);
+    fig->addGraph();
+    fig->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
     //Button
     //button audio read path
     //set size and location of the button
@@ -85,8 +89,7 @@ void LTSM::save_file_path() {
 }
 void LTSM::Analyze() {
     DWORD star_time = GetTickCount();//Analyze Function Time Calculate
-    spectrogram = new QCustomPlot(this);
-    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
+    
     Long_Spectrogram.clear();
     std::vector<double> temp_spectrum;
     std::string temp;
@@ -157,18 +160,24 @@ void LTSM::Analyze() {
         QCoreApplication::processEvents();
         spec->Audio_read(load_path_list[i]);
         spec->STFT(temp_win, temp_noverlap);
-        
+        if (figure_input.Figure_setting_type == 1.0) {
+            draw_spectrum(spec);
+        }
         if (acoustic_input.check_total_spectrogram) {// all spectrogram
             temp_spectrum.resize(spec->Spectrum.size());
             VectorXd::Map(&temp_spectrum[0], spec->Spectrum.size()) = spec->Spectrum;
-            Long_Spectrogram.push_back(temp_spectrum);
             spec->save_as_csv(spec->Spectrum, spectrogram_file_path);
-            draw_spectrogram(spec);
-            
+            if (figure_input.Figure_setting_type == 0) {
+                Long_Spectrogram.push_back(temp_spectrum);
+                draw_spectrogram(spec);
+            }
         }
 
         if (acoustic_input.check_octave_band) {//1/3 Octave Band
             spec->Octave_Band(acoustic_input.Oc_Center_frequency, temp_win);
+            if (figure_input.Figure_setting_type == 2.0) {
+                draw_Oc_Band(spec);
+            }
             spec->save_as_csv(spec->Octave_3_1, Oc_file_path);
         }
         if (acoustic_input.check_ACI_map) {//Calculate ACI
@@ -185,8 +194,65 @@ void LTSM::Analyze() {
     generate_report((end_time-star_time)/1000);
     
 }
+void LTSM::draw_Oc_Band(Spectral_analyze* spec) {
+    fig = new QCustomPlot(this);
+    fig->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));
+    Oc_Band = new QCPBars(fig->xAxis, fig->yAxis);
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));
+    QVector<double> x(spec->Octave_3_1.size()), y(spec->Octave_3_1.size());
+    QVector<QString> labels(spec->Octave_3_1.size());
+    for (int i = 0; i < spec->Octave_3_1.size(); i++) {
+        x[i] = i;
+        y[i] = spec->Octave_3_1(i);
+        labels[i] = QString::fromStdString(std::to_string(acoustic_input.Oc_Center_frequency[i]));
+    }
+    Oc_Band->setData(x, y);
+    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+    textTicker->addTicks(x,labels);
+    fig->xAxis->setTicker(textTicker);
+    fig->yAxis->setRange(spec->Octave_3_1.minCoeff()-10, spec->Octave_3_1.maxCoeff()+10);
+    fig->xAxis->setRange(-1, spec->Octave_3_1.size());
+
+    fig->replot();
+    fig->show();
+}
+void LTSM::draw_spectrum(Spectral_analyze* spec) {
+    fig->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));
+    spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));
+    QVector<double> x(spec->frequency_spectrum.size()), y(spec->frequency_spectrum.size()); // initialize with entries 0..100
+    int x_initial, x_last;
+    if (figure_input.auto_scale) {
+        x_initial = 0;
+        x_last = spec->frequency_spectrum.maxCoeff();
+    }
+    else {
+        x_initial = figure_input.xlim_low;
+        x_last = figure_input.xlim_high;
+    }
+    for (int i = x_initial; i < x_last; i++)
+    {
+        x[i] = spec->frequency_spectrum(i); // x goes from -1 to 1
+        y[i] = spec->Spectrum(i); // let's plot a quadratic function
+    }
+    // create graph and assign data to it:
+
+    fig->graph(0)->setData(x, y);
+    fig->xAxis->setRange(x_initial, x_last);
+    fig->yAxis->setRange(spec->Spectrum.minCoeff()-10, spec->Spectrum.maxCoeff()+10);
+    //fig->xAxis->setScaleType(QCPAxis::stLogarithmic);
+    // give the axes some labels:
+    fig->xAxis->setLabel("Frequency (Hz)");
+    fig->yAxis->setLabel("SPL (dB)");
+    fig->xAxis->setScaleType(QCPAxis::stLogarithmic);
+    fig->xAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+    fig->xAxis->setNumberPrecision(0);
+    // set axes ranges, so we see all data:
+    fig->replot();
+    fig->show();
+}
 void LTSM::draw_spectrogram(Spectral_analyze* spec) {
     spectrogram->setGeometry(QRect(QPoint(50, 250), QSize(1200, 350)));
+    fig->setGeometry(QRect(QPoint(50, 250), QSize(0, 0)));;
     spectrogram->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
     spectrogram->axisRect()->setupFullAxesBox(true);
     spectrogram->xAxis->setLabel("Time");
