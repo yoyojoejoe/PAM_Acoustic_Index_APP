@@ -79,8 +79,9 @@ void Spectral_analyze::ACI_Calculate() {
     ACI_spectrum = temp2.block(0, 0, ACI_map.rows() / 2 + 1, 1);
 }
 
-void Spectral_analyze::save_as_csv(VectorXd spectrum, std::string file_path) {
+void Spectral_analyze::save_as_csv(VectorXd spectrum, std::string file_path,std::string file_name) {
     std::ofstream spectrogram_file(file_path, std::ios_base::app);
+    spectrogram_file << file_name << ',';
     for (int i = 0; i < spectrum.size(); i++) {
         spectrogram_file << spectrum[i] << ',';
     }

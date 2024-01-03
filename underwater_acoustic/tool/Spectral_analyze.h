@@ -24,7 +24,7 @@ public:
     void Octave_Band(std::vector<double>center_frequency,int window);
     void ACI_Calculate();
     void Ambient_Noise_Estimate(double percentile);
-    void save_as_csv(VectorXd spectrum, std::string file_path);
+    void save_as_csv(VectorXd spectrum, std::string file_path, std::string file_name);
     int fs;
     VectorXd data;//Audiofile_data
     VectorXd time;//Time of spectrogram (seconds);
